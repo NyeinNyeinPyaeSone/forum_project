@@ -4,24 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Thread;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ThreadController extends Controller
 {
     public function index() {
+        // dd(Thread::with('category','user')->filter(request(['category', 'tag','search']))->latest()->get()->map(
+        //     function($thread){
+        //         $thread->threadActionAuthorized = auth()->user()?->can('threadActionAuthorized', $thread);
+        //         return $thread;
+        //     })->toArray());
         
         return inertia('Welcome', [
-            'threads' => Thread::with('category','user')->filter(request(['category', 'tag','search']))->latest()->get()->map(
-                function($thread){
-                    $thread->threadActionAuthorized = auth()->user()?->can('threadActionAuthorized', $thread);
-                    return $thread;
-                })
+            'threads' => Inertia::deepMerge(Thread::with('category','user')->filter(request(['category', 'tag','search']))->latest()->paginate(5))
             ]);
     }
 
     public function show(Thread $thread){
         
         return inertia("threads/show", [
-            'thread' => fn() => $thread->load(['category']),
+            'thread' => fn() => $thread->load(['category','user']),
             'comments' => fn() => $thread->comments()->with('user')->latest()->get()->map(
                 function($comment){
                     $comment->commentActionAuthorized = auth()->user()?->can('commentActionAuthorized', $comment);

@@ -30,9 +30,10 @@
         <div class="bg-white rounded-lg shadow-sm border">
           <!-- Thread Content -->
           <div class="p-6 border-b border-gray-200">
+        
             <div class="prose prose-lg max-w-none">
-              <div class="whitespace-pre-wrap text-gray-800 leading-relaxed">
-                {{ thread.body }}
+              <div class=" text-gray-800 leading-relaxed prose">
+                <vue-markdown :source="thread.body" />
               </div>
             </div>
           </div>
@@ -97,13 +98,7 @@
         <!-- Comments -->
       <div class="mt-6">
         <!-- Comment Form (design only) -->
-        <Form 
-          :action="`/threads/${thread.id}/comments/store`" 
-          method="post" 
-          resetOnSuccess 
-          :options="{
-              preserveScroll: true,
-          }"
+        <form @submit.prevent="saveComment"
           class="bg-white rounded-lg shadow-sm border p-6">
           <h3 class="text-lg font-semibold text-gray-900">Comments</h3>
           <div class="mt-4 flex items-start space-x-4">
@@ -114,14 +109,9 @@
             </div>
             <div class="flex-1">
               <div class="relative">
-                <textarea
-                  name="body"
-                  v-model="commentBody"
-                  rows="4"
-                  maxlength="1000"
-                  placeholder="Write a comment..."
-                  class="w-full resize-y rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 px-4 py-3 text-gray-800 placeholder:text-gray-400"
-                ></textarea>
+
+                <v-md-editor v-model="commentBody" height="200px"></v-md-editor>
+
                 <div class="mt-2 flex items-center justify-between">
                   <div class="flex items-center space-x-2 text-xs text-gray-500">
                     <span>{{ charCount }}/1000</span>
@@ -138,7 +128,7 @@
               </div>
             </div>
           </div>
-        </Form>
+        </form>
 
         <!-- Comment List (design only) -->
         <div class="mt-6 bg-white rounded-lg shadow-sm border divide-y">
@@ -190,8 +180,8 @@
                   </div>
                     
                   
-                  <div v-else class="whitespace-pre-wrap">
-                    {{ comment.body }}
+                  <div v-else class="whitespace-pre-wrap prose">
+                    <vue-markdown :source="comment.body" />
                   </div>
                 </div>
 
@@ -258,6 +248,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Link, usePoll, router, Form} from '@inertiajs/vue3'
+import VueMarkdown from 'vue-markdown-render'
+
+  
 const props = defineProps({
   thread: {
     type: Object,
@@ -278,9 +271,17 @@ const commentBody = ref('')
 const editingId = ref(null)
 const editedText = ref('')
 
-
 const charCount = computed(() => commentBody.value.length)
 
+const saveComment = async() => {
+  await router.post(`/threads/${props.thread.id}/comments/store`, {
+    body : commentBody.value
+  }, {
+    preserveScroll: true
+  })
+  commentBody.value = "";
+  
+}
 
 const formatDate = (dateString) => {
   if (!dateString) return 'Unknown'

@@ -148,13 +148,8 @@
             <label for="body" class="block text-sm font-medium text-gray-700 mb-2">
               Thread Content *
             </label>
-            <textarea
-              id="body"
-              row="8"
-              v-model="form.body"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              placeholder="Share ur thoughts,question and idea " 
-            ></textarea>
+            <v-md-editor v-model="form.body" height="400px"></v-md-editor>
+
             <p v-if="errors?.body" class="text-xs mt-2 ml-1 text-red-500">
                 {{ errors.body }}
             </p>
