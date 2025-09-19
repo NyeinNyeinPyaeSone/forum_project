@@ -6,9 +6,10 @@
         <div class="col-span-9 order-2">
           <div  v-if="threads?.data && threads.data.length" class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold">Recent Threads</h2>
-            <select class="border rounded-md px-2 py-1 text-sm">
-              <option>Latest</option>
-              <option>Popular</option>
+            <select v-model="filter" class="border rounded-md px-6 py-1 text-sm">
+              <option value="latest">Latest</option>
+              <option value="popular">Most Replies</option>
+              <option value="followed">Followed Threads</option>
             </select>
           </div>
 
@@ -100,7 +101,7 @@
 
 
     <!-- pagination -->
-    <WhenVisible 
+    <!-- <WhenVisible 
       :params = "{
         only : ['threads'],
         data : {
@@ -113,7 +114,7 @@
         </template>
 
         
-    </WhenVisible>
+    </WhenVisible> -->
 
     <!-- Delete Confirmation Modal -->
     <Modal :show="showDeleteModal" @close="closeDeleteModal">
@@ -179,8 +180,14 @@ export default {
     data(){
         return{
           showDeleteModal: false,
+          filter: 'latest',
           threadToDelete: null,
         }
+    },
+    watch: {
+      filter(){
+        this.$inertia.get('/?filter='+this.filter)
+      }
     },
     methods:{
       moment,
@@ -197,10 +204,14 @@ export default {
         this.closeDeleteModal();
       }
     },
+    
+
+
+
     mounted(){
-      if(this.threads.current_page !== 1){
-      this.$inertia.visit(route('home'), { data: { page: 1 }, replace: true, only: ['threads'] })
-      }
+      // if(this.threads.current_page !== 1){
+      // this.$inertia.visit(route('home'), { data: { page: 1 }, replace: true, only: ['threads'] })
+      // }
     }
 }
 </script>

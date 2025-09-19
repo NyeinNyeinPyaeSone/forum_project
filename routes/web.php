@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\UserController;
@@ -23,6 +24,8 @@ Route::post('/threads/{thread}/comments/store', [CommentController::class, 'stor
 Route::put('/comments/{comment}/update', [CommentController::class, 'update'])->name('comments.update');
 
 Route::delete('/comments/{comment}/destroy', [CommentController::class, 'destroy'])->middleware('auth');
+
+Route::post('/handle-follow/{user}', [FollowController::class, 'store']);
 
 
 

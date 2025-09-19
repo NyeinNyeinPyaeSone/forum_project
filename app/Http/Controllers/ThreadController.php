@@ -9,16 +9,26 @@ use Inertia\Inertia;
 class ThreadController extends Controller
 {
     public function index() {
+        
         // dd(Thread::with('category','user')->filter(request(['category', 'tag','search']))->latest()->get()->map(
         //     function($thread){
         //         $thread->threadActionAuthorized = auth()->user()?->can('threadActionAuthorized', $thread);
         //         return $thread;
         //     })->toArray());
-        
         return inertia('Welcome', [
-            'threads' => Inertia::deepMerge(Thread::with('category','user')->filter(request(['category', 'tag','search']))->latest()->paginate(5))
-            ]);
+            'threads' => Inertia::deepMerge(
+                Thread::with('category','user')
+                    ->filter(request(['category', 'tag','search', 'popular', 'followed']))
+                    ->latest()
+                    ->paginate(5)
+                    ->through(function($thread) {
+                        $thread->threadActionAuthorized = auth()->user()?->can('threadActionAuthorized', $thread);
+                        return $thread;
+                    })
+            )
+        ]);
     }
+    
 
     public function show(Thread $thread){
         

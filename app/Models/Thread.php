@@ -27,25 +27,34 @@ class Thread extends Model
     }
 
 
-        public function scopeFilter($query, $filters){
-            $query->when($filters['category'] ?? null, function($query, $category){ 
-                $query->whereHas('category', function($query) use ($category){
-                    return $query->where('slug', $category);
+        public function scopeFilter($query, $filters)
+        {
+                $query->when($filters['category'] ?? null, function($query, $category){ 
+                    $query->whereHas('category', function($query) use ($category){
+                        return $query->where('slug', $category);
+                });
             });
 
-        });
+                $query->when($filters['tag'] ?? null, function($query, $tag){ 
+                    $query->whereHas('tags', function($query) use ($tag){
+                        return $query->where('slug', $tag);
+                });
+            });
 
-        $query->when($filters['tag'] ?? null, function($query, $tag){ 
-            $query->whereHas('tags', function($query) use ($tag){
-                return $query->where('slug', $tag);
-        });
+            $query->when($filters['search'] ?? null, function($query, $search){ 
+                $query->where('title','like','%' . $search . '%');
+            });
 
-    });
+            $query->when(
+                request('filter') === 'popular', 
+                fn($query) => 
+                $query->withCount('comments')->orderByDesc('comments_count')
+            );
+            $query->when(
+                request('filter') === 'followed', 
+                fn($query) => 
+                    $query->whereIn('user_id', auth()->user()->followers()->pluck('id'))
+            );
+        }
 
-    $query->when($filters['search'] ?? null, function($query, $search){ 
-        $query->where('title','like','%' . $search . '%');
-    });
-
-
-    }
 }
